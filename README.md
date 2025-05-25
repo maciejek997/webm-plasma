@@ -97,3 +97,23 @@ libvpx-vp9 preferuje enkodowanie dwuprzebiegowe, powinny zostać wykorzystane `-
 `-cpu-used 3` - wskazuje enkoderowi by nadal wydajnie enkodował wychodzące wideo, lecz po prostu zrobił to szybciej (-cpu-used >3 wyłącza RDO: Rate-distortion Optimization, wychodzący film powinien jednak wyglądać dobrze)
 
 `-deadline good`:  w przypadku drugiego przebiegu enkodowania `-deadline best` jest zbędny, zajmuje zbyt dużo czasu i nie oferuje znacznie zwiększonej jakości (o ile w ogóle) i ogranicza się do wykorzystywania czterech wątków procesora
+
+# ffmpeg-python
+
+### Bardzo prymitywny przykład działania ffmpeg-python
+
+```python
+#!/usr/bin/env python
+
+import ffmpeg
+
+input = ffmpeg.input('/sciezka/do/filmu.mp4')
+
+pass_1 = ffmpeg.output(input, '/dev/null', video_bitrate='bitrate_ze_wzoru', format='null', vcodec='libvpx-vp9', an=None, sn=None, **{'pass': 1, 'deadline': 'best', 'cpu-used': 0, 'row-mt': 1, 'enable-tpl': 1, 'auto-alt-ref': 1, 'arnr-maxframes': 7, 'arnr-strength': 4, 'lag-in-frames': 25, 'g': klatki_kluczowe_obliczane_przez_wzor})
+
+pass_2 = ffmpeg.output(input, '/sciezka/do/filmu.webm', video_bitrate='600k', format='webm', vcodec='libvpx-vp9', an=None, sn=None, **{'pass': 2, 'deadline': 'good', 'cpu-used': 3, 'row-mt': 1, 'enable-tpl': 1, 'auto-alt-ref': 1, 'arnr-maxframes': 7, 'arnr-strength': 4, 'lag-in-frames': 25, 'g': klatki_kluczowe_obliczane_przez_wzor})
+
+ffmpeg.run(pass_1)
+
+ffmpeg.run(pass_2)
+```
